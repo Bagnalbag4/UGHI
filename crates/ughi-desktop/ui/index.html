@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UGHI - Desktop</title>
+    <link rel="icon" type="image/webp" href="favicon.webp">
+    <style>
+        :root {
+            --bg-color: #0f1115;
+            --sidebar-bg: #16181d;
+            --text-primary: #f0f0f0;
+            --text-secondary: #9aa0a6;
+            --accent-color: #007aff;
+            --input-bg: #1e2025;
+            --border-color: #2a2c32;
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                --bg-color: #ffffff;
+                --sidebar-bg: #f7f7f8;
+                --text-primary: #1a1a1a;
+                --text-secondary: #6e6e80;
+                --input-bg: #ffffff;
+                --border-color: #e5e5e5;
+            }
+        }
+
+        body.kids-mode {
+            --bg-color: #f0fdf4;
+            --sidebar-bg: #dcfce7;
+            --text-primary: #166534;
+            --text-secondary: #15803d;
+            --accent-color: #22c55e;
+            --input-bg: #ffffff;
+            --border-color: #86efac;
+            font-family: "Comic Sans MS", "Chalkboard SE", sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* Titlebar (Custom for frameless windows) */
+        .titlebar {
+            height: 30px;
+            background: transparent;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            -webkit-app-region: drag;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 10px;
+            padding-top: 40px;
+            /* space for titlebar */
+        }
+
+        .sidebar h2 {
+            padding: 0 15px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-item {
+            padding: 12px 15px;
+            margin-bottom: 5px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-primary);
+            transition: background-color 0.2s;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background-color: var(--input-bg);
+        }
+
+        .workspace-stats {
+            margin-top: auto;
+            padding: 15px;
+            border-top: 1px solid var(--border-color);
+            font-size: 13px;
+        }
+
+        .stat-line {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Chat / Output Area */
+        .chat-area {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .welcome-hero {
+            text-align: center;
+            max-width: 600px;
+        }
+
+        .welcome-hero h1 {
+            font-size: 36px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .welcome-hero p {
+            color: var(--text-secondary);
+            font-size: 18px;
+            line-height: 1.5;
+        }
+
+        .quick-actions {
+            display: none;
+            gap: 15px;
+            margin-top: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        body.kids-mode .quick-actions {
+            display: flex;
+        }
+
+        .quick-btn {
+            background: var(--input-bg);
+            border: 2px solid var(--border-color);
+            padding: 15px 25px;
+            border-radius: 20px;
+            color: var(--text-primary);
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .quick-btn:hover {
+            transform: scale(1.05);
+            background: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+
+        .agent-tree {
+            width: 100%;
+            max-width: 800px;
+            margin-top: 40px;
+            display: none;
+        }
+
+        /* Input Area */
+        .input-area {
+            padding: 30px 40px;
+            background: linear-gradient(180deg, transparent, var(--bg-color) 40%);
+        }
+
+        .input-container {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .goal-input {
+            width: 100%;
+            padding: 20px 60px 20px 24px;
+            font-size: 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            background-color: var(--input-bg);
+            color: var(--text-primary);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            outline: none;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            resize: none;
+            height: 64px;
+        }
+
+        .goal-input:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 8px 30px rgba(0, 122, 255, 0.15);
+        }
+
+        .run-btn {
+            position: absolute;
+            right: 12px;
+            top: 12px;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background-color: var(--text-primary);
+            color: var(--bg-color);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+
+        .run-btn:hover {
+            opacity: 0.9;
+        }
+
+        .run-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Onboarding Wizard Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .modal {
+            background: var(--bg-color);
+            width: 480px;
+            border-radius: 20px;
+            padding: 40px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        .modal h2 {
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+        .modal p {
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .modal input {
+            width: 100%;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: var(--input-bg);
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+
+        .btn-primary {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: #0062cc;
+        }
+
+        .toggle-container {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px;
+            border-top: 1px solid var(--border-color);
+            cursor: pointer;
+        }
+
+        .toggle-switch {
+            width: 40px;
+            height: 20px;
+            background: var(--border-color);
+            border-radius: 20px;
+            position: relative;
+            transition: 0.3s;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: var(--text-primary);
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: 0.3s;
+        }
+
+        body.kids-mode .toggle-switch {
+            background: var(--accent-color);
+        }
+
+        body.kids-mode .toggle-switch::after {
+            left: 22px;
+            background: white;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="titlebar"></div>
+
+    <!-- Onboarding Wizard -->
+    <div class="modal-overlay" id="onboarding">
+        <div class="modal">
+            <h2>Welcome to UGHI</h2>
+            <p>Unleashed Global Human Intelligence.<br>Your secure, local, billion-scale capable AI OS.</p>
+            <input type="text" id="userName" placeholder="What should we call you?">
+            <button class="btn-primary" onclick="startUghi()">Start UGHI</button>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>Workspace</h2>
+        <div class="nav-item active" onclick="switchTab('run')">✨ Run Goal</div>
+        <div class="nav-item" onclick="switchTab('skills')">🧩 Skills</div>
+        <div class="nav-item" onclick="switchTab('news')">📰 News</div>
+        <div class="nav-item" onclick="switchTab('media')">🖼️ Media</div>
+        <div class="nav-item" onclick="switchTab('computer')">💻 Computer Mode</div>
+
+        <div class="workspace-stats">
+            <div class="stat-line">
+                <span>Memory</span>
+                <span style="color: #4CAF50">40 MB</span>
+            </div>
+            <div class="stat-line">
+                <span>Active Agents</span>
+                <span>0 / 64</span>
+            </div>
+            <div class="stat-line">
+                <span>Status</span>
+                <span id="sys-status" style="color: #007aff">Orchestrator Idle</span>
+            </div>
+        </div>
+
+        <div class="toggle-container" onclick="toggleKidsMode()">
+            <div class="toggle-switch"></div>
+            <span style="font-weight: bold; font-size: 14px;">🧸 Kids Mode</span>
+        </div>
+    </div>
+
+    <div class="main-content" id="tab-run">
+        <div class="chat-area">
+            <div class="welcome-hero" id="hero">
+                <h1 id="greeting">Hello.</h1>
+                <p id="hero-subtitle">What goal can I accomplish for you today?</p>
+                <div class="quick-actions">
+                    <button class="quick-btn" onclick="fillQuickGoal('Help me plan my science project step by step')">🔬
+                        Science Project</button>
+                    <button class="quick-btn"
+                        onclick="fillQuickGoal('Write a fun story about a robot and a dinosaur')">🦖 Robot
+                        Story</button>
+                    <button class="quick-btn" onclick="fillQuickGoal('Teach me how to make a simple video game')">🎮
+                        Make a Game</button>
+                </div>
+            </div>
+            <div class="agent-tree" id="tree">
+                <!-- Live tree renders here -->
+            </div>
+        </div>
+
+        <div class="input-area">
+            <div class="input-container">
+                <textarea class="goal-input" id="goalInput"
+                    placeholder="Type your goal... (e.g. 'Build a React dashboard')"></textarea>
+                <button class="run-btn" id="runBtn" onclick="runGoal()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Generic Placeholder Tab for other features -->
+    <div class="main-content" id="tab-other" style="display: none;">
+        <div class="chat-area">
+            <div class="welcome-hero">
+                <h1 id="other-title">Feature</h1>
+                <p style="color: var(--accent-color); margin-top: 10px;">Coming Soon in v0.2.0</p>
+                <p style="margin-top: 20px; font-size: 15px; max-width: 400px; margin-left: auto; margin-right: auto;">
+                    This module is currently being finalized by the UGHI Core Team and will be unlocked via auto-update
+                    shortly.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8080';
+        const WS_URL = 'ws://localhost:8080/ws';
+        let ws;
+        let agents = {};
+        let apiToken = '';
+        function connectWS() {
+            ws = new WebSocket(WS_URL);
+            ws.onopen = () => {
+                document.getElementById('sys-status').innerText = 'Connected (Live)';
+                document.getElementById('sys-status').style.color = '#06d6a0';
+            };
+            ws.onclose = () => {
+                document.getElementById('sys-status').innerText = 'Disconnected - Retrying...';
+                document.getElementById('sys-status').style.color = '#f43f5e';
+                setTimeout(connectWS, 2000);
+            };
+            ws.onmessage = (e) => {
+                try {
+                    const data = JSON.parse(e.data);
+                    if (data.metrics) {
+                        document.querySelector('.workspace-stats').innerHTML = `
+                            <div class="stat-line"><span>Memory</span><span style="color: #4CAF50">${data.metrics.memory_total_mb.toFixed(1)} MB</span></div>
+                            <div class="stat-line"><span>Active Agents</span><span>${data.metrics.agents_active} / 64</span></div>
+                            <div class="stat-line"><span>Status</span><span id="sys-status" style="color: #06d6a0">Connected (Live)</span></div>
+                        `;
+                    }
+                    if (data.agents) {
+                        agents = data.agents;
+                        renderAgents();
+                    } else if (data.type || data.event_type) {
+                        refreshAgents();
+                    }
+                } catch (err) { }
+            };
+        }
+
+        function refreshAgents() {
+            if (!apiToken) return;
+            const headers = { 'Authorization': 'Bearer ' + apiToken };
+            fetch(API_BASE + '/api/agents', { headers }).then(r => r.json()).then(data => {
+                if (data.agents) {
+                    agents = {};
+                    data.agents.forEach(a => { agents[a.id] = a; });
+                    renderAgents();
+                }
+            }).catch(() => { });
+            fetch(API_BASE + '/api/metrics', { headers }).then(r => r.json()).then(data => {
+                if (data.memory_total_mb !== undefined) {
+                    document.querySelector('.workspace-stats').innerHTML = `
+                        <div class="stat-line"><span>Memory</span><span style="color: #4CAF50">${data.memory_total_mb.toFixed(1)} MB</span></div>
+                        <div class="stat-line"><span>Active Agents</span><span>${data.agents_active} / 64</span></div>
+                        <div class="stat-line"><span>Status</span><span id="sys-status" style="color: #06d6a0">Connected (Live)</span></div>
+                    `;
+                }
+            }).catch(() => { });
+        }
+
+        function renderAgents() {
+            const tree = document.getElementById('tree');
+            const ids = Object.keys(agents);
+            if (ids.length === 0) {
+                tree.innerHTML = '<div style="text-align:center; padding: 40px; color: var(--text-secondary);">No active agents.</div>';
+                return;
+            }
+
+            tree.innerHTML = ids.map(id => {
+                const a = agents[id];
+                return `
+                <div style="background: var(--sidebar-bg); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 20px; display:flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="font-family: monospace; color: var(--accent-color); font-size: 11px; margin-bottom: 4px;">ID: ${a.id}</div>
+                        <h3 style="margin-bottom: 8px; color: var(--text-primary); font-size: 15px;">Goal: ${a.goal}</h3>
+                        <div style="color: var(--text-secondary); display: flex; align-items: center; gap: 10px; font-size: 13px;">
+                            ${a.state !== 'completed' && a.state !== 'crashed' ? '<span style="display:inline-block; width:12px; height:12px; border-radius:50%; border:2px solid var(--accent-color); border-top-color:transparent; animation: spin 1s linear infinite;"></span>' : ''}
+                            State: <span style="text-transform: uppercase; font-weight: 600;">${a.state}</span> (${a.uptime_ms}ms)
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function switchTab(tabName) {
+            // Update active state in sidebar
+            const items = document.querySelectorAll('.nav-item');
+            items.forEach(item => item.classList.remove('active'));
+
+            // Show corresponding content
+            if (tabName === 'run') {
+                items[0].classList.add('active');
+                document.getElementById('tab-run').style.display = 'flex';
+                document.getElementById('tab-other').style.display = 'none';
+            } else {
+                let index = 1, title = "Skills";
+                if (tabName === 'news') { index = 2; title = "News"; }
+                if (tabName === 'media') { index = 3; title = "Media Generation"; }
+                if (tabName === 'computer') { index = 4; title = "Computer Control"; }
+
+                items[index].classList.add('active');
+                document.getElementById('tab-run').style.display = 'none';
+                document.getElementById('tab-other').style.display = 'flex';
+                document.getElementById('other-title').innerText = title;
+            }
+        }
+
+        async function initializeApp() {
+            if (window.__TAURI__) {
+                try {
+                    const invoke = window.__TAURI__.invoke;
+                    apiToken = await invoke('get_api_token');
+                    document.getElementById('sys-status').innerText = 'Starting...';
+                } catch (e) {
+                    console.error("Token err:", e);
+                }
+            }
+            connectWS();
+            refreshAgents();
+            setInterval(refreshAgents, 3000);
+        }
+
+        function startUghi() {
+            const name = document.getElementById('userName').value || 'User';
+            localStorage.setItem('ughi_setup_done', 'true');
+            localStorage.setItem('ughi_name', name);
+            document.getElementById('onboarding').style.display = 'none';
+            document.getElementById('greeting').innerText = `Hello, ${name}.`;
+            initializeApp();
+        }
+
+        // Check if first run
+        if (localStorage.getItem('ughi_setup_done')) {
+            document.getElementById('onboarding').style.display = 'none';
+            document.getElementById('greeting').innerText = `Hello, ${localStorage.getItem('ughi_name') || 'User'}.`;
+            initializeApp();
+        }
+
+        function runGoal() {
+            const input = document.getElementById('goalInput').value;
+            if (!input) return;
+
+            document.getElementById('hero').style.display = 'none';
+            document.getElementById('tree').style.display = 'block';
+
+            // Visual loading state
+            document.getElementById('tree').innerHTML = `
+                <div style="background: var(--sidebar-bg); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 20px;">
+                    <h3 style="margin-bottom: 10px; color: var(--text-primary);">Goal: ${input}</h3>
+                    <div style="color: var(--text-secondary); display: flex; align-items: center; gap: 10px;">
+                        <span style="display:inline-block; width:12px; height:12px; border-radius:50%; border:2px solid var(--accent-color); border-top-color:transparent; animation: spin 1s linear infinite;"></span>
+                        Spawning WorldClass Expert Agent...
+                    </div>
+                </div>
+            `;
+            document.getElementById('goalInput').value = '';
+
+            // Execute real API request to Go Orchestrator
+            fetch(API_BASE + '/api/spawn', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + apiToken
+                },
+                body: JSON.stringify({ goal: input, priority: 'high' })
+            }).then(r => r.json()).then(data => {
+                if (data.error) throw new Error(data.error);
+                refreshAgents();
+            }).catch(err => {
+                alert('Error connecting to UGHI Orchestrator. ' + err.message);
+                document.getElementById('tree').innerHTML = '';
+            });
+        }
+        function fillQuickGoal(text) {
+            document.getElementById('goalInput').value = text;
+            runGoal();
+        }
+
+        function toggleKidsMode() {
+            const body = document.body;
+            body.classList.toggle('kids-mode');
+            const isKids = body.classList.contains('kids-mode');
+            localStorage.setItem('ughi_kids_mode', isKids);
+
+            if (isKids) {
+                document.getElementById('hero-subtitle').innerText = "What fun thing should we do today?";
+                document.getElementById('goalInput').placeholder = "Type what you want me to do... (like 'Make a game!')";
+            } else {
+                document.getElementById('hero-subtitle').innerText = "What goal can I accomplish for you today?";
+                document.getElementById('goalInput').placeholder = "Type your goal... (e.g. 'Build a React dashboard')";
+            }
+        }
+
+        if (localStorage.getItem('ughi_kids_mode') === 'true') {
+            document.body.classList.add('kids-mode');
+            document.getElementById('hero-subtitle').innerText = "What fun thing should we do today?";
+            document.getElementById('goalInput').placeholder = "Type what you want me to do... (like 'Make a game!')";
+        }
+
+    </script>
+    <style>
+        @keyframes spin {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</body>
+
+</html>

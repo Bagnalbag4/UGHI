@@ -1,0 +1,13 @@
+# ughi-fleet – Multi-instance cloning + fleet management
+# Memory: ~2 KB per instance record
+
+[package]
+name = "ughi-fleet"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+tracing.workspace = true

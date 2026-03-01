@@ -1,0 +1,18 @@
+# ughi-wasm – Zero-Trust WASM Sandbox + Capability Security
+# Follows strict_rules.md | Zero trust | All tools via capability tokens
+# Memory: ~12 MB base | Overhead: < 8% latency | 10 pre-approved skills
+# No panic! in core | No unsafe except wasmtime internals
+
+[package]
+name = "ughi-wasm"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+wasmtime.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tracing.workspace = true
+thiserror.workspace = true
+anyhow.workspace = true

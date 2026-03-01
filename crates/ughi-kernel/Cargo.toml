@@ -1,0 +1,33 @@
+# ughi-kernel – Main binary entry point
+# Follows strict_rules.md | Memory budget: boot < 50 MB | Binary ≤ 18 MB
+
+[package]
+name = "ughi-kernel"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[[bin]]
+name = "ughi"
+path = "src/main.rs"
+
+[dependencies]
+ughi-runtime = { path = "../ughi-runtime" }
+ughi-inference = { path = "../ughi-inference" }
+ughi-skills = { path = "../ughi-skills" }
+ughi-wasm = { path = "../ughi-wasm" }
+ughi-memory = { path = "../ughi-memory" }
+ughi-expert = { path = "../ughi-expert" }
+ughi-evolution = { path = "../ughi-evolution" }
+ughi-integrations = { path = "../ughi-integrations" }
+ughi-workflows = { path = "../ughi-workflows" }
+ughi-marketplace = { path = "../ughi-marketplace" }
+ughi-fleet = { path = "../ughi-fleet" }
+ughi-skills-registry = { path = "../ughi-skills-registry" }
+
+tokio.workspace = true
+clap.workspace = true
+serde_json.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+anyhow.workspace = true

@@ -1,0 +1,13 @@
+# ughi-skills-registry – Skills.sh integration client
+# Memory: ~4 KB for registry index
+
+[package]
+name = "ughi-skills-registry"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+tracing.workspace = true

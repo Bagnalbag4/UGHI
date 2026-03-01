@@ -1,0 +1,15 @@
+# ughi-computer – UGHI Computer Mode
+# Surpasses Perplexity Computer: local-first, self-evolving, unlimited agents
+# Memory: ~2 KB base | ~45 MB peak per active workflow step
+# Follows strict_rules.md | Zero GPU | Keys encrypted
+
+[package]
+name = "ughi-computer"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+tracing.workspace = true

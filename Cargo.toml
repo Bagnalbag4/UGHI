@@ -1,0 +1,74 @@
+# UGHI Workspace – Follows strict_rules.md
+# Memory budget: Idle ≤ 380 MB | 20 agents ≤ 3.2 GB | Binary ≤ 18 MB
+# Zero GPU | Rust stable only | No Arc<Mutex> spam
+
+[workspace]
+resolver = "2"
+members = [
+    "crates/ughi-kernel",
+    "crates/ughi-runtime",
+    "crates/ughi-inference",
+    "crates/ughi-skills",
+    "crates/ughi-wasm",
+    "crates/ughi-memory",
+    "crates/ughi-expert",
+    "crates/ughi-evolution",
+    "crates/ughi-integrations",
+    "crates/ughi-workflows",
+    "crates/ughi-marketplace",
+    "crates/ughi-fleet",
+    "crates/ughi-skills-registry",
+    "crates/ughi-multimedia",
+    "crates/ughi-computer",
+    "crates/ughi-desktop",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.80"
+license = "MIT"
+repository = "https://github.com/UGHI/UGHI"
+
+[workspace.dependencies]
+# Async runtime – single-threaded flavor to minimize overhead
+tokio = { version = "1.43", features = ["rt", "rt-multi-thread", "macros", "signal", "sync", "time"] }
+
+# CLI
+clap = { version = "4.5", features = ["derive"] }
+
+# Serialization (zero-copy where possible)
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# WASM sandbox – capability-based security
+wasmtime = "29.0"
+
+# SLM inference – CPU only, no CUDA features
+candle-core = { version = "0.9", default-features = false }
+candle-nn = { version = "0.9", default-features = false }
+candle-transformers = { version = "0.9", default-features = false }
+
+# Memory stores
+rusqlite = { version = "0.32", features = ["bundled"] }
+
+# Logging – minimal overhead
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["fmt"] }
+
+# Error handling – no panic! in core
+thiserror = "2.0"
+anyhow = "1.0"
+
+# Cryptography – AES-256-GCM + HKDF (production-grade, no unsafe)
+ring = "0.17"
+
+# Unique IDs (12-char agent IDs)
+nanoid = "0.4"
+
+[profile.release]
+opt-level = "z"        # Optimize for size → ≤ 18 MB binary
+lto = true             # Link-time optimization
+codegen-units = 1      # Single codegen unit for max size reduction
+strip = true           # Strip debug symbols
+panic = "abort"        # No unwind tables → smaller binary

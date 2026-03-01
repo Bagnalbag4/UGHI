@@ -1,0 +1,339 @@
+# UGHI Kubernetes Deployment
+# Follows strict_rules.md | RAM ≤ 3.2 GB peak | Binary ≤ 28 MB
+# Architecture: Kernel (Rust) + Orchestrator (Go) as separate deployments
+# Auto-scales from 2 to 100 pods based on CPU/memory
+
+---
+# --- Namespace ---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ughi
+  labels:
+    app: ughi
+
+---
+# --- ConfigMap ---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ughi-config
+  namespace: ughi
+data:
+  RUST_LOG: "info"
+  UGHI_MAX_AGENTS: "64"
+  API_ADDR: "0.0.0.0:8080"
+  GRPC_ADDR: "0.0.0.0:50052"
+  KERNEL_ADDR: "ughi-kernel:50051"
+
+---
+# --- Secrets (rotate via external-secrets or sealed-secrets in production) ---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ughi-secrets
+  namespace: ughi
+type: Opaque
+stringData:
+  UGHI_MASTER_KEY: "CHANGE-ME-IN-PRODUCTION-use-openssl-rand-hex-32"
+  UGHI_JWT_SECRET: "CHANGE-ME-IN-PRODUCTION-use-openssl-rand-hex-64"
+
+---
+# --- Kernel Deployment (Rust) ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ughi-kernel
+  namespace: ughi
+  labels:
+    app: ughi
+    component: kernel
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ughi
+      component: kernel
+  template:
+    metadata:
+      labels:
+        app: ughi
+        component: kernel
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      containers:
+        - name: kernel
+          image: ughi:latest
+          command: ["./UGHI", "daemon"]
+          ports:
+            - containerPort: 8420
+              name: api
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: ughi-config
+            - secretRef:
+                name: ughi-secrets
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "2Gi"
+              cpu: "2000m"
+          livenessProbe:
+            exec:
+              command: ["./UGHI", "--version"]
+            initialDelaySeconds: 5
+            periodSeconds: 30
+            timeoutSeconds: 5
+          readinessProbe:
+            exec:
+              command: ["./UGHI", "status"]
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+          volumeMounts:
+            - name: data
+              mountPath: /home/UGHI/data
+            - name: models
+              mountPath: /home/UGHI/models
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: ughi-data
+        - name: models
+          persistentVolumeClaim:
+            claimName: ughi-models
+
+---
+# --- Orchestrator Deployment (Go) ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ughi-orchestrator
+  namespace: ughi
+  labels:
+    app: ughi
+    component: orchestrator
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ughi
+      component: orchestrator
+  template:
+    metadata:
+      labels:
+        app: ughi
+        component: orchestrator
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+      containers:
+        - name: orchestrator
+          image: ughi:latest
+          command: ["./ughi-orchestrator"]
+          args: ["--api-addr", "0.0.0.0:8080", "--kernel-addr", "ughi-kernel:50051"]
+          ports:
+            - containerPort: 8080
+              name: http
+              protocol: TCP
+            - containerPort: 50052
+              name: grpc
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: ughi-config
+            - secretRef:
+                name: ughi-secrets
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "1000m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 15
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+
+---
+# --- Services ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ughi-kernel
+  namespace: ughi
+spec:
+  selector:
+    app: ughi
+    component: kernel
+  ports:
+    - port: 50051
+      targetPort: 8420
+      name: grpc
+  clusterIP: None  # Headless for direct pod addressing
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ughi-api
+  namespace: ughi
+spec:
+  type: LoadBalancer
+  selector:
+    app: ughi
+    component: orchestrator
+  ports:
+    - port: 80
+      targetPort: 8080
+      name: http
+    - port: 443
+      targetPort: 8080
+      name: https
+
+---
+# --- HPA (Horizontal Pod Autoscaler) ---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ughi-kernel-hpa
+  namespace: ughi
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ughi-kernel
+  minReplicas: 2
+  maxReplicas: 100
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ughi-orchestrator-hpa
+  namespace: ughi
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ughi-orchestrator
+  minReplicas: 2
+  maxReplicas: 50
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+
+---
+# --- PDB (Pod Disruption Budget) ---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: ughi-kernel-pdb
+  namespace: ughi
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: ughi
+      component: kernel
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: ughi-orchestrator-pdb
+  namespace: ughi
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: ughi
+      component: orchestrator
+
+---
+# --- PVCs ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ughi-data
+  namespace: ughi
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 10Gi
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ughi-models
+  namespace: ughi
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 5Gi
+
+---
+# --- Ingress (nginx) ---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ughi-ingress
+  namespace: ughi
+  annotations:
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+    nginx.ingress.kubernetes.io/proxy-body-size: "4m"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - api.ughi.ai
+      secretName: ughi-tls
+  rules:
+    - host: api.ughi.ai
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ughi-api
+                port:
+                  number: 80

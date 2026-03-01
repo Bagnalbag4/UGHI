@@ -1,0 +1,13 @@
+# ughi-workflows – Composable skill pipelines
+# Memory: ~2 KB per pipeline
+
+[package]
+name = "ughi-workflows"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+tracing.workspace = true

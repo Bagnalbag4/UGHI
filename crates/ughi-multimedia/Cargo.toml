@@ -1,0 +1,15 @@
+# ughi-multimedia – Hybrid Image + Video Generation
+# Local default (Candle CPU) + Optional cloud API (Grok/Kling/Runway)
+# Memory: ~45 MB per gen (within per-skill 45 MB budget)
+# Follows strict_rules.md | Zero GPU local mode | Keys never logged
+
+[package]
+name = "ughi-multimedia"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+tracing.workspace = true

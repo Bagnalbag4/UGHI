@@ -1,0 +1,18 @@
+# ughi-memory – Hierarchical Persistent Memory System
+# Follows strict_rules.md | Short-term: ≤ 120 MB RAM | Long-term: ≤ 280 MB disk
+# Per-agent: ~6 MB RAM + ~14 MB disk | Query latency: < 40 ms
+# No panic! in core | SQLite WAL mode | Pure Rust cosine similarity
+
+[package]
+name = "ughi-memory"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+rusqlite.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tracing.workspace = true
+thiserror.workspace = true
+anyhow.workspace = true

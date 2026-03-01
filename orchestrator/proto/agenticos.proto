@@ -1,0 +1,94 @@
+// Agenticos Protocol Buffer Service Definition
+// Follows strict_rules.md | agent.md
+// This file documents the gRPC contract between Go orchestrator and Rust kernel.
+// We use JSON-encoded gRPC for simplicity (no protoc compilation needed).
+
+syntax = "proto3";
+
+package agenticos;
+
+option go_package = "github.com/agenticos/orchestrator/proto";
+
+// AgentService – bidirectional bridge between Go orchestrator and Rust kernel.
+// All RPCs must complete in <10ms on localhost.
+service AgentService {
+  // Spawn a new agent with the given goal and priority.
+  rpc Spawn(SpawnRequest) returns (SpawnResponse);
+  // Kill an agent and release its resources.
+  rpc Kill(KillRequest) returns (AgentSnapshot);
+  // Monitor a specific agent's current state.
+  rpc Monitor(MonitorRequest) returns (AgentSnapshot);
+  // List all agents with their current state.
+  rpc ListAgents(Empty) returns (AgentList);
+  // Transition an agent to a new lifecycle state.
+  rpc Transition(TransitionRequest) returns (Empty);
+  // Get runtime metrics.
+  rpc GetMetrics(Empty) returns (MetricsResponse);
+  // Stream agent events in real-time (bidirectional).
+  rpc StreamEvents(Empty) returns (stream AgentEvent);
+}
+
+message Empty {}
+
+message SpawnRequest {
+  string goal = 1;
+  string priority = 2;     // background|low|normal|high|critical
+  string parent_id = 3;    // empty for root supervisor
+}
+
+message SpawnResponse {
+  string agent_id = 1;     // 12-char nanoid
+  int64 spawn_latency_us = 2;
+}
+
+message KillRequest {
+  string agent_id = 1;
+}
+
+message MonitorRequest {
+  string agent_id = 1;
+}
+
+message TransitionRequest {
+  string agent_id = 1;
+  string new_state = 2;    // spawned|planning|tool_using|thinking|collaborating|reviewing|completing|crashed
+}
+
+message AgentSnapshot {
+  string id = 1;
+  string goal = 2;
+  string state = 3;
+  string priority = 4;
+  string parent_id = 5;
+  uint64 memory_usage_bytes = 6;
+  uint64 memory_peak_limit_bytes = 7;
+  int32 capabilities_count = 8;
+  uint64 transition_count = 9;
+  uint64 uptime_ms = 10;
+  uint64 idle_time_ms = 11;
+}
+
+message AgentList {
+  repeated AgentSnapshot agents = 1;
+}
+
+message MetricsResponse {
+  uint64 agents_active = 1;
+  uint64 agents_total_spawned = 2;
+  uint64 agents_total_completed = 3;
+  uint64 agents_total_crashed = 4;
+  uint64 memory_total_bytes = 5;
+  double memory_total_mb = 6;
+  uint64 last_spawn_latency_us = 7;
+  uint64 scheduler_ticks = 8;
+  uint64 scheduler_dequeues = 9;
+}
+
+message AgentEvent {
+  string event_type = 1;   // spawned|transition|killed|crashed|completed
+  string agent_id = 2;
+  string old_state = 3;
+  string new_state = 4;
+  string goal = 5;
+  int64 timestamp_ms = 6;
+}

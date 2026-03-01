@@ -1,0 +1,13 @@
+# ughi-marketplace – Community skill registry (ClawHub)
+# Memory: ~4 KB for registry index
+
+[package]
+name = "ughi-marketplace"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+tracing.workspace = true

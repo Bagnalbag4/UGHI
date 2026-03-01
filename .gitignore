@@ -1,0 +1,62 @@
+# ----------------------------------------------------------------------
+# UGHI Agentic OS .gitignore
+# ----------------------------------------------------------------------
+
+# 1. Rust & Cargo
+# The 'target' directory contains compiled artifacts and can be massive
+/target/
+**/*.rs.bk
+# Note: Cargo.lock is committed because UGHI produces binaries.
+
+# 2. Go & Orchestrator Build Out
+/orchestrator/vendor/
+/orchestrator/*.exe
+# Optional coverage/test profiles
+*.out
+*.test
+
+# 3. Frontend & Tauri (WebUI)
+# If node_modules are ever added to the UI, ignore them
+ui/node_modules/
+ui/dist/
+crates/ughi-desktop/target/
+
+# 4. Environment Variables & Secrets
+# NEVER upload these!
+.env
+.env.*
+*.pem
+*.key
+secret.yaml
+*cert.pem
+*key.pem
+
+# 5. AI Models & Downloaded Data
+# Large LLM/SLM models should be downloaded at runtime, not stored in Git
+/models/*.gguf
+/models/*.bin
+/data/*.sqlite
+/data/*.db
+
+# 6. IDEs & Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# 7. OS Generated
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# 8. Temporary & Build artifacts
+*.o
+*.so
+*.dylib
+*.dll
+*.log

@@ -1,0 +1,15 @@
+# ughi-evolution – Self-Evolution Intelligence Engine
+# Follows strict_rules.md + self_evolution.md
+# Memory: ~8 KB for engine state | Per lesson: ~256 bytes
+# All evolution local & safe. No cloud. No heavy compute.
+
+[package]
+name = "ughi-evolution"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+tracing.workspace = true

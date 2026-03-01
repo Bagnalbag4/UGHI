@@ -1,0 +1,15 @@
+# ughi-skills – Skill trait and built-in skill registry
+# Follows strict_rules.md | Per skill call: ≤ 45 MB | Latency: < 420 ms cold, < 80 ms hot
+
+[package]
+name = "ughi-skills"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+tracing.workspace = true
+thiserror.workspace = true
+anyhow.workspace = true

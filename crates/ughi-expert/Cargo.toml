@@ -1,0 +1,14 @@
+# ughi-expert – World-class expert persona injection system
+# Follows strict_rules.md + expert_roles.md | 50 expert templates
+# Memory: ~4 KB for registry | Per persona: ~512 bytes
+
+[package]
+name = "ughi-expert"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+tracing.workspace = true
