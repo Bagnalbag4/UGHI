@@ -1,5 +1,5 @@
 <div align="center">
-![ughi](https://github.com/user-attachments/assets/5d074bdd-9cf5-405c-adcc-c4387b29bedf)
+<img width="200" height="200" alt="UGI Logo" src="https://github.com/user-attachments/assets/8e0f6d51-d6a0-48bd-b438-a5b9e43ec022" />
 
   <h1> UGHI</h1>
   <p><b>Unleashed Global Human Intelligence. The World's First Billion-Scale AI OS for Everyone.</b></p>
