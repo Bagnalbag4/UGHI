@@ -21,7 +21,7 @@ set -euo pipefail
 
 # ── Configuration ────────────────────────────────────────
 VERSION="1.0.0"
-REPO="ughi-ai/ughi"
+REPO="Bagnalbag4/UGHI"
 GITHUB_RELEASES="https://github.com/${REPO}/releases/download/v${VERSION}"
 INSTALL_DIR="${UGHI_DIR:-$HOME/.ughi}"
 BIN_DIR="$INSTALL_DIR/bin"

@@ -1,4 +1,4 @@
-# 🚀 UGHI: One-Click Desktop App (Easy Use Guide)
+# UGHI: One-Click Desktop App (Easy Use Guide)
 
 UGHI is now available for absolutely **anyone** to use, no terminal required. With our new Tauri-based Desktop App, installing and running UGHI is as simple as a single click.
 

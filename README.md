@@ -1,19 +1,18 @@
-<div align="center">
-<img width="200" height="200" alt="UGI Logo" src="https://github.com/user-attachments/assets/8e0f6d51-d6a0-48bd-b438-a5b9e43ec022" />
-
+<div align ="center">
+  <img src="https://raw.githubusercontent.com/ughi-ai/ughi/main/crates/ughi-desktop/icons/128x128.png" alt="UGHI Logo" width="128">
   <h1> UGHI</h1>
   <p><b>Unleashed Global Human Intelligence. The World's First Billion-Scale AI OS for Everyone.</b></p>
 
   <p>
-    <a href="https://github.com/ughi-ai/ughi/releases"><img src="https://img.shields.io/badge/Download_for_Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white" alt="Windows Download" /></a>
-    <a href="https://github.com/ughi-ai/ughi/releases"><img src="https://img.shields.io/badge/Download_for_Mac-000000?style=for-the-badge&logo=apple&logoColor=white" alt="Mac Download" /></a>
-    <a href="https://github.com/ughi-ai/ughi/releases"><img src="https://img.shields.io/badge/Download_for_Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black" alt="Linux Download" /></a>
+    <a href="https://github.com/Bagnalbag4/UGHI/releases"><img src="https://img.shields.io/badge/Download_for_Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white" alt="Windows Download" /></a>
+    <a href="https://github.com/Bagnalbag4/UGHI/releases"><img src="https://img.shields.io/badge/Download_for_Mac-000000?style=for-the-badge&logo=apple&logoColor=white" alt="Mac Download" /></a>
+    <a href="https://github.com/Bagnalbag4/UGHI/releases"><img src="https://img.shields.io/badge/Download_for_Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black" alt="Linux Download" /></a>
   </p>
 
   <p>
-    <a href="https://github.com/ughi-ai/ughi/stargazers"><img src="https://img.shields.io/github/stars/ughi-ai/ughi?style=flat-square" alt="Stars"></a>
-    <a href="https://github.com/ughi-ai/ughi/network/members"><img src="https://img.shields.io/github/forks/ughi-ai/ughi?style=flat-square" alt="Forks"></a>
-    <a href="https://github.com/ughi-ai/ughi/blob/main/LICENSE"><img src="https://img.shields.io/github/license/ughi-ai/ughi?style=flat-square" alt="License"></a>
+    <a href="https://github.com/Bagnalbag4/UGHI/stargazers"><img src="https://img.shields.io/github/stars/Bagnalbag4/UGHI?style=flat-square" alt="Stars"></a>
+    <a href="https://github.com/Bagnalbag4/UGHI/network/members"><img src="https://img.shields.io/github/forks/Bagnalbag4/UGHI?style=flat-square" alt="Forks"></a>
+    <a href="https://github.com/Bagnalbag4/UGHI/blob/main/LICENSE"><img src="https://img.shields.io/github/license/Bagnalbag4/UGHI?style=flat-square" alt="License"></a>
   </p>
   
   <p><strong>⭐ Star us if you like it! ❤️</strong></p>
@@ -68,8 +67,8 @@ If you want to look under the hood:
 
 **Want to build from source?**
 ```bash
-git clone https://github.com/ughi-ai/ughi.git
-cd ughi
+git clone https://github.com/Bagnalbag4/UGHI.git
+cd UGHI
 make ci
 ```
 

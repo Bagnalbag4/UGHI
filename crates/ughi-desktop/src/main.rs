@@ -3,7 +3,6 @@
     windows_subsystem = "windows"
 )]
 
-use tauri::Manager;
 use tauri_plugin_autostart::MacosLauncher;
 
 use jsonwebtoken::{encode, EncodingKey, Header};
