@@ -1,5 +1,6 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/ughi-ai/ughi/main/crates/ughi-desktop/icons/128x128.png" alt="UGHI Logo" width="128">
+![ughi](https://github.com/user-attachments/assets/5d074bdd-9cf5-405c-adcc-c4387b29bedf)
+
   <h1> UGHI</h1>
   <p><b>Unleashed Global Human Intelligence. The World's First Billion-Scale AI OS for Everyone.</b></p>
 
